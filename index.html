@@ -234,6 +234,183 @@
 
 
     <script>
+        // --- USAGE CONTROL SYSTEM ---
+        function initUsageControl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userToken = urlParams.get('token');
+            const maxUsage = parseInt(urlParams.get('limit')) || 10;
+            
+            if (!userToken) {
+                document.body.innerHTML = `
+                    <div style="text-align: center; padding: 50px; font-family: Inter, sans-serif; background: #f8f9fa; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px;">
+                            <div style="font-size: 60px; margin-bottom: 20px;">🔒</div>
+                            <h1 style="color: #e74c3c; margin-bottom: 20px;">访问受限</h1>
+                            <p style="color: #7f8c8d; margin-bottom: 30px;">请使用正确的访问链接</p>
+                            <p style="color: #34495e;">如需购买使用权限，请联系客服</p>
+                            <div style="margin-top: 30px;">
+                                <a href="#" style="display: inline-block; background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 500;">联系客服</a>
+                        </div>
+                        </div>
+                    </div>
+                `;
+                return false;
+            }
+            
+            const storageKey = `usage_${userToken}`;
+            let currentUsage = parseInt(localStorage.getItem(storageKey)) || 0;
+            
+            if (currentUsage >= maxUsage) {
+                document.body.innerHTML = `
+                    <div style="text-align: center; padding: 50px; font-family: Inter, sans-serif; background: #f8f9fa; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px;">
+                            <div style="font-size: 60px; margin-bottom: 20px;">⏰</div>
+                            <h1 style="color: #e74c3c; margin-bottom: 20px;">使用次数已用完</h1>
+                            <p style="color: #7f8c8d; margin-bottom: 10px;">您的 <strong>${maxUsage}</strong> 次使用额度已用完</p>
+                            <p style="color: #95a5a6; font-size: 14px; margin-bottom: 30px;">感谢您对我们产品的信任</p>
+                            <p style="color: #34495e; margin-bottom: 30px;">如需继续使用，请联系客服购买新的使用权限</p>
+                            <div style="margin-top: 30px;">
+                                <a href="#" style="display: inline-block; background: linear-gradient(135deg, #27ae60, #229954); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 500; margin-right: 10px;">联系客服</a>
+                                <a href="#" style="display: inline-block; background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 500;">推荐给朋友</a>
+                        </div>
+                        </div>
+                    </div>
+                `;
+                return false;
+            }
+            
+            // 显示剩余次数
+            addUsageIndicator(maxUsage - currentUsage, userToken);
+            return true;
+        }
+
+        function addUsageIndicator(remaining, userToken) {
+            const header = document.querySelector('header');
+            const indicator = document.createElement('div');
+            indicator.id = 'usage-indicator';
+            indicator.style.cssText = `
+                background: linear-gradient(135deg, #f39c12, #e67e22); 
+                color: white; 
+                padding: 10px 20px; 
+                border-radius: 25px; 
+                font-size: 14px; 
+                margin-top: 15px;
+                display: inline-block;
+                font-weight: 500;
+                box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+                animation: pulse 2s infinite;
+            `;
+            indicator.innerHTML = `
+                <span style="display: inline-block; margin-right: 8px;">⚡</span>
+                剩余使用次数: <strong>${remaining}</strong>
+            `;
+            header.appendChild(indicator);
+            
+            // 添加动画样式
+            if (!document.getElementById('usage-animation')) {
+                const style = document.createElement('style');
+                style.id = 'usage-animation';
+                style.textContent = `
+                    @keyframes pulse {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.05); }
+                        100% { transform: scale(1); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        function recordUsage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userToken = urlParams.get('token');
+            const maxUsage = parseInt(urlParams.get('limit')) || 10;
+            
+            if (!userToken) return false;
+            
+            const storageKey = `usage_${userToken}`;
+            let currentUsage = parseInt(localStorage.getItem(storageKey)) || 0;
+            
+            if (currentUsage >= maxUsage) {
+                alert('使用次数已用完，请联系客服购买新的使用权限');
+                return false;
+            }
+            
+            // 记录使用
+            localStorage.setItem(storageKey, currentUsage + 1);
+            
+            // 更新显示
+            const remaining = maxUsage - currentUsage - 1;
+            const indicator = document.getElementById('usage-indicator');
+            if (indicator) {
+                indicator.innerHTML = `
+                    <span style="display: inline-block; margin-right: 8px;">⚡</span>
+                    剩余使用次数: <strong>${remaining}</strong>
+                `;
+                
+                // 如果剩余次数很少，改变颜色
+                if (remaining <= 2) {
+                    indicator.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                    indicator.style.boxShadow = '0 4px 15px rgba(231, 76, 60, 0.3)';
+                } else if (remaining <= 5) {
+                    indicator.style.background = 'linear-gradient(135deg, #f39c12, #e67e22)';
+                }
+            }
+            
+            return true;
+        }
+
+        function showUsageWarning(remaining) {
+            if (remaining <= 3 && remaining > 0) {
+                const warning = document.createElement('div');
+                warning.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #e74c3c, #c0392b);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    box-shadow: 0 4px 20px rgba(231, 76, 60, 0.3);
+                    z-index: 1000;
+                    animation: slideIn 0.5s ease-out;
+                `;
+                warning.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span style="font-size: 20px; margin-right: 10px;">⚠️</span>
+                        <div>
+                            <div>使用次数即将用完</div>
+                            <div style="font-size: 12px; opacity: 0.9;">还剩 ${remaining} 次</div>
+                </div>
+            </div>
+                `;
+                
+                document.body.appendChild(warning);
+                
+                // 3秒后自动消失
+                setTimeout(() => {
+                    if (warning.parentNode) {
+                        warning.parentNode.removeChild(warning);
+                    }
+                }, 3000);
+                
+                // 添加滑入动画
+                if (!document.getElementById('slide-animation')) {
+                    const style = document.createElement('style');
+                    style.id = 'slide-animation';
+                    style.textContent = `
+                        @keyframes slideIn {
+                            from { transform: translateX(100%); opacity: 0; }
+                            to { transform: translateX(0); opacity: 1; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+        }
+
         // --- API CONFIGURATION ---
         const QWEN_API_CONFIG = {
             apiKey: 'sk-55d5092efca446cab2b5d6c32deb91ca',
@@ -573,8 +750,8 @@
                             <p class="text-red-600 text-xs mt-1">请检查网络连接或稍后重试</p>
                         </div>
                     </div>
-                </div>
-            `;
+                    </div>
+                `;
         }
         
         function displayQuestionsInCard(questionsSection, competencyName, level, questions) {
@@ -651,6 +828,11 @@
         });
         
         async function startInterviewEvaluation() {
+            // 首先检查并记录使用次数
+            if (!recordUsage()) {
+                return;
+            }
+            
             const interviewRecord = interviewText.value.trim();
             if (!interviewRecord) {
                 alert('请先输入面试记录');
@@ -662,6 +844,15 @@
                 alert('请先生成能力模型');
                 return;
             }
+            
+            // 显示使用次数警告（如果剩余次数较少）
+            const urlParams = new URLSearchParams(window.location.search);
+            const maxUsage = parseInt(urlParams.get('limit')) || 10;
+            const userToken = urlParams.get('token');
+            const storageKey = `usage_${userToken}`;
+            const currentUsage = parseInt(localStorage.getItem(storageKey)) || 0;
+            const remaining = maxUsage - currentUsage;
+            showUsageWarning(remaining);
             
             // 更新按钮状态
             updateEvaluationButtonState('loading');
@@ -1344,7 +1535,15 @@ ${resume}
         
 
         // --- SCRIPT EXECUTION ---
-        document.addEventListener('DOMContentLoaded', populateDropdowns);
+        document.addEventListener('DOMContentLoaded', function() {
+            // 首先检查使用权限
+            if (!initUsageControl()) {
+                return; // 如果访问受限，不继续执行
+            }
+            
+            // 如果权限检查通过，正常初始化应用
+            populateDropdowns();
+        });
     </script>
 </body>
 </html>
