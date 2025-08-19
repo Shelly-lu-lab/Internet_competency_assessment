@@ -57,8 +57,8 @@
         
         <!-- Header -->
         <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">互联网公司专业岗位能力模型</h1>
-            <p class="mt-2 text-gray-600">为用人经理设计的岗位能力定义工具</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">AI驱动的互联网人才能力评估平台</h1>
+            <p class="mt-2 text-gray-600">能力建模 + 面试设计 + 人才评估，一站式招聘决策工具</p>
         </header>
 
         <!-- Controls Section -->
@@ -116,11 +116,82 @@
             </div>
         </div>
 
-        <!-- Add Competency Button -->
-        <div class="text-center mt-8">
-                <button id="add-competency-btn" class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
+                <!-- Add Competency Button -->
+        <div class="text-center mt-8 mb-8">
+                <button id="add-competency-btn" class="bg-blue-600 text-white font-semibold py-6 px-6 rounded-lg shadow-md hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
                     + 新增能力项
                 </button>
+                </div>
+
+        <!-- Interview Evaluation Section -->
+        <div id="evaluation-section" class="bg-white p-6 rounded-xl shadow-md mb-8 hidden">
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">面试评估</h3>
+                        <p class="text-sm text-gray-600">粘贴面试全文，AI将基于能力模型对候选人进行标准化评估</p>
+                </div>
+                    <svg class="w-8 h-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="interview-text" class="block text-sm font-medium text-gray-700 mb-2">面试记录全文</label>
+                        <textarea 
+                            id="interview-text" 
+                            class="w-full h-48 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition resize-none"
+                            placeholder="请粘贴完整的面试记录，包括面试官的问题和候选人的回答。例如：
+
+面试官：请描述一个您在团队管理方面遇到挑战的具体情况。
+候选人：我在上个项目中负责一个8人的产品团队...
+
+面试官：当时您具体采取了哪些行动？
+候选人：首先我..."
+                        ></textarea>
+                        <div class="mt-2 flex items-center text-xs text-gray-500">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            AI将分析面试内容，基于4级评估标准（超出要求、符合要求、低于要求、没有展现）进行评估
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <button 
+                            id="start-evaluation-btn" 
+                            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium py-3 px-6 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            disabled
+                        >
+                            <svg class="w-5 h-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            开始AI评估
+                </button>
+                        
+                        <div class="text-sm text-gray-500">
+                            将评估 <span id="competency-count">0</span> 个能力项
+            </div>
+                    </div>
+            </div>
+            </div>
+            
+            <!-- Evaluation Results Container -->
+            <div id="evaluation-results" class="space-y-6 hidden">
+                <!-- Summary Card -->
+                <div id="evaluation-summary" class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-200">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">评估总览</h4>
+                    <div id="score-distribution" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Score distribution will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Individual Competency Evaluations -->
+                <div id="competency-evaluations" class="space-y-4">
+                    <!-- Individual evaluation cards will be populated here -->
+                </div>
+            </div>
         </div>
 
     </div>
@@ -195,6 +266,14 @@
         const modalCancelBtn = document.getElementById('modal-cancel-btn');
         const resumeSection = document.getElementById('resume-section');
         const resumeText = document.getElementById('resume-text');
+        const evaluationSection = document.getElementById('evaluation-section');
+        const interviewText = document.getElementById('interview-text');
+        const startEvaluationBtn = document.getElementById('start-evaluation-btn');
+        const competencyCount = document.getElementById('competency-count');
+        const evaluationResults = document.getElementById('evaluation-results');
+        const evaluationSummary = document.getElementById('evaluation-summary');
+        const scoreDistribution = document.getElementById('score-distribution');
+        const competencyEvaluations = document.getElementById('competency-evaluations');
 
         // --- INITIALIZATION ---
         function populateDropdowns() {
@@ -274,10 +353,14 @@
             cardsContainer.innerHTML = '';
             cardsContainer.appendChild(initialMessage.cloneNode(true));
             addBtn.disabled = true;
-            // 当没有选择职级时，隐藏简历区域
+            // 当没有选择职级时，隐藏简历区域和评估区域
             if (!rankSelect.value) {
                 resumeSection.classList.add('hidden');
+                evaluationSection.classList.add('hidden');
             }
+            // 重置评估结果
+            evaluationResults.classList.add('hidden');
+            updateCompetencyCount();
         }
 
         function renderModel() {
@@ -288,8 +371,9 @@
                 return;
             }
             
-            // 立即显示简历输入区域
+            // 立即显示简历输入区域和评估区域
             resumeSection.classList.remove('hidden');
+            evaluationSection.classList.remove('hidden');
             
             const competencies = modelData[secondaryCode] ? modelData[secondaryCode][rankCode] : [];
             cardsContainer.innerHTML = '';
@@ -297,11 +381,14 @@
                 competencies.forEach(item => {
                     createCompetencyCard(item.c, item.l);
                 });
+                // 更新能力项计数
+                updateCompetencyCount();
             } else {
                  cardsContainer.innerHTML = `<div class="md:col-span-2 text-center py-16 px-6 bg-white rounded-xl shadow-md">
                     <h3 class="mt-2 text-lg font-medium text-gray-900">暂无为该序列定义的模型数据</h3>
                     <p class="mt-1 text-sm text-gray-500">您可以手动新增能力项。</p>
                 </div>`;
+                updateCompetencyCount();
             }
         }
         
@@ -322,7 +409,10 @@
                     <button class="remove-btn text-gray-400 hover:text-red-500 transition text-2xl font-bold leading-none -mt-1">&times;</button>
                 </div>
             `;
-            header.querySelector('.remove-btn').addEventListener('click', () => card.remove());
+            header.querySelector('.remove-btn').addEventListener('click', () => {
+                card.remove();
+                updateCompetencyCount();
+            });
             
             const generateBtn = header.querySelector('.generate-questions-btn');
             generateBtn.addEventListener('click', () => {
@@ -396,6 +486,7 @@
             const initialMsgEl = document.getElementById('initial-message');
             if (initialMsgEl) initialMsgEl.remove();
             cardsContainer.appendChild(card);
+            updateCompetencyCount();
         }
 
                 // --- INTERVIEW QUESTIONS GENERATION ---
@@ -464,8 +555,8 @@
                 <div class="flex items-center justify-center py-8">
                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     <span class="ml-3 text-gray-600">AI正在生成面试问题...</span>
-                </div>
-            `;
+                    </div>
+                `;
         }
         
         function displayErrorInCard(questionsSection, competencyName, level, errorMessage) {
@@ -537,6 +628,552 @@
             `;
         }
         
+        // --- INTERVIEW EVALUATION FUNCTIONS ---
+        function updateCompetencyCount() {
+            const competencyCards = cardsContainer.querySelectorAll('[data-competency-code]');
+            const count = competencyCards.length;
+            competencyCount.textContent = count;
+            
+            // 启用/禁用评估按钮
+            startEvaluationBtn.disabled = count === 0;
+        }
+        
+        // 监听面试记录输入，启用/禁用评估按钮
+        interviewText.addEventListener('input', () => {
+            const hasText = interviewText.value.trim().length > 0;
+            const hasCompetencies = parseInt(competencyCount.textContent) > 0;
+            startEvaluationBtn.disabled = !hasText || !hasCompetencies;
+        });
+        
+        // 评估按钮点击事件
+        startEvaluationBtn.addEventListener('click', async () => {
+            await startInterviewEvaluation();
+        });
+        
+        async function startInterviewEvaluation() {
+            const interviewRecord = interviewText.value.trim();
+            if (!interviewRecord) {
+                alert('请先输入面试记录');
+                return;
+            }
+            
+            const competencyCards = cardsContainer.querySelectorAll('[data-competency-code]');
+            if (competencyCards.length === 0) {
+                alert('请先生成能力模型');
+                return;
+            }
+            
+            // 更新按钮状态
+            updateEvaluationButtonState('loading');
+            
+            // 显示结果区域
+            evaluationResults.classList.remove('hidden');
+            
+            // 收集所有能力项信息
+            const competenciesToEvaluate = Array.from(competencyCards).map(card => {
+                const competencyCode = card.getAttribute('data-competency-code');
+                        const levelSelect = card.querySelector('select');
+                        const level = parseInt(levelSelect.value);
+                return { competencyCode, level };
+            });
+            
+            try {
+                // 开始评估所有能力项
+                const evaluationResults = await evaluateAllCompetencies(interviewRecord, competenciesToEvaluate);
+                
+                // 显示评估结果
+                displayEvaluationResults(evaluationResults);
+                
+                updateEvaluationButtonState('completed');
+            } catch (error) {
+                console.error('评估失败:', error);
+                updateEvaluationButtonState('error');
+                alert('评估失败：' + error.message);
+            }
+        }
+        
+        function updateEvaluationButtonState(state) {
+            const states = {
+                initial: {
+                    text: '开始AI评估',
+                    classes: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
+                    disabled: false
+                },
+                loading: {
+                    text: 'AI深度分析中...',
+                    classes: 'bg-gray-400 cursor-not-allowed',
+                    disabled: true
+                },
+                completed: {
+                    text: '重新评估',
+                    classes: 'bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700',
+                    disabled: false
+                },
+                error: {
+                    text: '重试评估',
+                    classes: 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700',
+                    disabled: false
+                }
+            };
+            
+            const config = states[state];
+            if (config) {
+                const icon = startEvaluationBtn.querySelector('svg');
+                startEvaluationBtn.innerHTML = `${icon.outerHTML}${config.text}`;
+                startEvaluationBtn.className = `text-white font-medium py-3 px-6 rounded-lg shadow-md transition disabled:bg-gray-300 disabled:cursor-not-allowed ${config.classes}`;
+                startEvaluationBtn.disabled = config.disabled;
+            }
+        }
+        
+        async function evaluateAllCompetencies(interviewRecord, competenciesToEvaluate) {
+            const results = [];
+            
+            for (const { competencyCode, level } of competenciesToEvaluate) {
+                const competency = competencyLibrary[competencyCode];
+                if (!competency) continue;
+                
+                try {
+                    const evaluation = await callEvaluationAPI(competency, level, interviewRecord);
+                    results.push({
+                        competencyCode,
+                        competencyName: competency.name,
+                        level,
+                        evaluation
+                    });
+            } catch (error) {
+                    console.error(`评估 ${competency.name} 失败:`, error);
+                    results.push({
+                        competencyCode,
+                        competencyName: competency.name,
+                        level,
+                        evaluation: {
+                            score: '评估失败',
+                            evidences: [{
+                                type: '错误',
+                                content: '无法获取评估结果',
+                                relevance: '系统错误'
+                            }],
+                            behavioral_analysis: {
+                                identified_behaviors: [],
+                                level_matching: error.message,
+                                gap_analysis: '无法分析',
+                                conclusion_reasoning: '评估失败'
+                            },
+                            strengths: [],
+                            improvements: ['请检查网络连接', '稍后重试评估']
+                        }
+                    });
+                }
+            }
+            
+            return results;
+        }
+        
+        async function callEvaluationAPI(competency, level, interviewRecord) {
+            const levelData = competency.levels[level - 1];
+            const competencyName = competency.name;
+            const levelName = levelData.name;
+            const levelDesc = levelData.desc.replace(/<br>/g, ' ').replace(/•/g, '').trim();
+            
+            // 构建等级参考对比信息
+            const lowerLevelDesc = level > 1 ? competency.levels[level - 2].desc.replace(/<br>/g, ' ').replace(/•/g, '').trim() : "无";
+            const higherLevelDesc = level < 5 ? competency.levels[level].desc.replace(/<br>/g, ' ').replace(/•/g, '').trim() : "无";
+            
+            const prompt = `
+作为专业的HR评估专家，请基于以下信息对候选人进行严格的能力评估：
+
+【岗位信息】
+- 序列：${secondarySelect.options[secondarySelect.selectedIndex].text}
+- 职级：${rankSelect.options[rankSelect.selectedIndex].text}
+- 目标能力项：${competencyName}
+- 要求等级：${levelName} (L${level})
+
+【目标等级标准】
+当前目标等级(L${level})要求：${levelDesc}
+${level > 1 ? `低一级(L${level-1})要求：${lowerLevelDesc}` : ''}
+${level < 5 ? `高一级(L${level+1})要求：${higherLevelDesc}` : ''}
+
+【评估原则】
+1. 严格对标：候选人行为必须达到L${level}的具体要求才能评为"符合要求"
+2. 证据导向：基于面试中的具体行为事例进行判断，不做推测
+3. 等级区分：明确区分不同等级间的行为差异
+
+【面试记录】
+${interviewRecord}
+
+【评估标准】
+1. 超出要求 - 候选人行为表现明显高于L${level}等级，体现了L${level+1}或更高等级的能力特征
+2. 符合要求 - 候选人通过具体事例清晰展现了L${level}等级的关键行为，有充分证据证明达到该等级要求
+3. 低于要求 - 候选人未能有效证明达到L${level}等级，仅体现了L${level-1}或更低等级的行为
+4. 没有展现 - 无相关行为事例，或明确表示没有相关经验
+
+【证据收集要求】
+请从面试记录中系统性地提取与${competencyName}相关的所有行为证据：
+1. 直接行为证据：候选人明确描述的具体行为和做法
+2. 结果导向证据：候选人提到的行动结果和影响
+3. 思维过程证据：候选人的思考逻辑和决策过程
+4. 情境适应证据：候选人在不同情况下的应对方式
+
+【行为解码要求】
+请按以下框架进行深度分析：
+1. 行为识别：明确指出候选人展现了哪些具体行为
+2. 等级匹配：逐项对比这些行为与L${level}要求的匹配度
+3. 差距分析：指出达到/未达到目标等级的关键差异
+4. 综合判断：基于整体行为表现给出评估结论
+
+【输出要求】
+请严格按照以下JSON格式输出评估结果，直接返回JSON对象，不要使用markdown代码块：
+{
+  "score": "符合要求",
+  "evidences": [
+    {
+      "type": "直接行为",
+      "content": "候选人原话1",
+      "relevance": "与L${level}等级要求的关联性说明"
+    },
+    {
+      "type": "结果导向",
+      "content": "候选人原话2", 
+      "relevance": "体现的能力水平说明"
+    },
+    {
+      "type": "思维过程",
+      "content": "候选人原话3",
+      "relevance": "思考深度的体现"
+    }
+  ],
+  "behavioral_analysis": {
+    "identified_behaviors": ["行为1", "行为2", "行为3"],
+    "level_matching": "详细的等级匹配分析，不少于200字，说明候选人的行为如何与L${level}等级要求对应",
+    "gap_analysis": "与L${level}等级的差距或超越分析，指出关键差异点",
+    "conclusion_reasoning": "评分结论的逻辑推理过程"
+  },
+  "strengths": ["优势点1", "优势点2"],
+  "improvements": ["改进建议1", "改进建议2"]
+}
+
+【质量要求】
+1. evidences数组至少包含3个不同类型的证据
+2. behavioral_analysis.level_matching不少于200字
+3. 必须明确说明候选人行为与L${level}等级要求的匹配程度
+4. 所有字段都必须填写，不能为空`;
+
+            const requestBody = {
+                model: QWEN_API_CONFIG.model,
+                messages: [
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ],
+                max_tokens: 1500,
+                temperature: 0.3,
+                top_p: 0.8
+            };
+
+            const response = await fetch(`${QWEN_API_CONFIG.baseURL}/chat/completions`, {
+                method: 'POST',
+                headers: QWEN_API_CONFIG.headers,
+                body: JSON.stringify(requestBody)
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API调用失败 (${response.status}): ${errorText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                throw new Error('API返回格式异常：缺少有效的回复内容');
+            }
+
+            let content = data.choices[0].message.content.trim();
+            console.log('AI原始返回内容:', content);
+            
+            try {
+                // 清理可能存在的markdown代码块标记
+                if (content.startsWith('```json') || content.startsWith('```')) {
+                    console.log('检测到markdown代码块，正在清理...');
+                    // 移除开头的```json或```
+                    content = content.replace(/^```(?:json)?/g, '');
+                    // 移除结尾的```
+                    content = content.replace(/```$/g, '');
+                    content = content.trim();
+                    console.log('清理后的内容:', content);
+                }
+                
+                // 尝试解析JSON
+                const evaluation = JSON.parse(content);
+                
+                // 验证必需字段
+                if (!evaluation.score || !evaluation.evidences || !evaluation.behavioral_analysis) {
+                    throw new Error('AI返回的评估结果缺少必需字段');
+                }
+                
+                // 确保数组字段存在
+                if (!evaluation.strengths) evaluation.strengths = [];
+                if (!evaluation.improvements) evaluation.improvements = [];
+                if (!evaluation.evidences) evaluation.evidences = [];
+                if (!evaluation.behavioral_analysis) evaluation.behavioral_analysis = {
+                    identified_behaviors: [],
+                    level_matching: '',
+                    gap_analysis: '',
+                    conclusion_reasoning: ''
+                };
+                
+                return evaluation;
+            } catch (parseError) {
+                console.error('AI返回的原始内容:', content);
+                console.error('解析AI返回结果失败:', parseError);
+                
+                // 如果JSON解析失败，尝试从文本中提取信息
+                return extractEvaluationFromText(content);
+            }
+        }
+        
+        function extractEvaluationFromText(content) {
+            // 当JSON解析失败时的备用解析方法
+            console.log('使用备用文本解析方法');
+            
+            const evaluation = {
+                score: '评估失败',
+                evidences: [{
+                    type: '解析失败',
+                    content: '无法解析AI返回的评估结果',
+                    relevance: 'AI返回格式异常'
+                }],
+                behavioral_analysis: {
+                    identified_behaviors: [],
+                    level_matching: 'AI返回的内容格式不正确，无法进行标准化解析。请检查面试记录是否完整，或重试评估。',
+                    gap_analysis: '无法进行差距分析',
+                    conclusion_reasoning: '解析失败，无法得出结论'
+                },
+                strengths: [],
+                improvements: ['建议重新输入面试记录', '确保面试内容包含具体的行为事例']
+            };
+            
+            // 尝试从文本中提取评分
+            const scorePatterns = [
+                /(?:评分|得分|评估结果).*?(超出要求|符合要求|低于要求|没有展现)/i,
+                /(超出要求|符合要求|低于要求|没有展现)/i
+            ];
+            
+            for (const pattern of scorePatterns) {
+                const match = content.match(pattern);
+                if (match) {
+                    evaluation.score = match[1];
+                    break;
+                }
+            }
+            
+            // 尝试提取证据
+            const evidencePatterns = [
+                /(?:证据|原话|行为表现).*?["']([^"']+)["']/i,
+                /["']([^"']{20,100})["']/i
+            ];
+            
+            for (const pattern of evidencePatterns) {
+                const match = content.match(pattern);
+                if (match) {
+                    evaluation.evidences = [{
+                        type: '文本提取',
+                        content: match[1],
+                        relevance: '从文本中提取的可能证据'
+                    }];
+                    break;
+                }
+            }
+            
+            // 尝试提取分析
+            const analysisPatterns = [
+                /(?:分析|解读|评价).*?[:：]\s*([^。！？\n]{20,200})/i,
+                /(?:候选人|表现|能力).*?([^。！？\n]{30,150})/i
+            ];
+            
+            for (const pattern of analysisPatterns) {
+                const match = content.match(pattern);
+                if (match) {
+                    evaluation.behavioral_analysis.level_matching = match[1].trim();
+                    break;
+                }
+            }
+            
+            return evaluation;
+        }
+        
+        function displayEvaluationResults(results) {
+            // 统计评分分布
+            const scoreStats = {
+                '超出要求': 0,
+                '符合要求': 0,
+                '低于要求': 0,
+                '没有展现': 0
+            };
+            
+            results.forEach(result => {
+                const score = result.evaluation.score;
+                if (scoreStats.hasOwnProperty(score)) {
+                    scoreStats[score]++;
+                }
+            });
+            
+            // 显示总览统计
+            displayScoreDistribution(scoreStats);
+            
+            // 显示各能力项评估结果
+            displayCompetencyEvaluations(results);
+        }
+        
+        function displayScoreDistribution(scoreStats) {
+            const scoreConfig = {
+                '超出要求': { color: 'from-emerald-500 to-emerald-600', icon: '⭐' },
+                '符合要求': { color: 'from-blue-500 to-blue-600', icon: '✓' },
+                '低于要求': { color: 'from-amber-500 to-amber-600', icon: '⚠' },
+                '没有展现': { color: 'from-slate-400 to-slate-500', icon: '○' }
+            };
+            
+            scoreDistribution.innerHTML = Object.entries(scoreStats).map(([score, count]) => {
+                const config = scoreConfig[score];
+                return `
+                    <div class="text-center p-4 bg-gradient-to-r ${config.color} text-white rounded-lg">
+                        <div class="text-2xl font-bold">${config.icon}</div>
+                        <div class="text-2xl font-bold mt-1">${count}</div>
+                        <div class="text-sm opacity-90">${score}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function displayCompetencyEvaluations(results) {
+            competencyEvaluations.innerHTML = results.map(result => {
+                const { competencyName, level, evaluation } = result;
+                const scoreClass = getScoreClass(evaluation.score);
+                
+                return `
+                    <div class="competency-evaluation-card bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-900">${competencyName}</h4>
+                            <span class="score-badge px-3 py-1 rounded-full text-sm font-medium ${scoreClass}">${evaluation.score}</span>
+                            </div>
+                        
+                        <div class="space-y-6">
+                            <!-- 多维度证据展示 -->
+                            <div class="evidence-section">
+                                <h5 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-1 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    关键行为证据
+                                </h5>
+                                <div class="space-y-3">
+                                    ${evaluation.evidences && evaluation.evidences.length > 0 ? evaluation.evidences.map((evidence, index) => `
+                                        <div class="evidence-item bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                            <div class="flex items-start gap-2 mb-2">
+                                                <span class="inline-block px-2 py-1 text-xs font-medium bg-blue-600 text-white rounded">${evidence.type}</span>
+                                                <span class="text-xs text-blue-700 font-medium">证据 ${index + 1}</span>
+                                            </div>
+                                            <blockquote class="text-sm text-gray-700 italic mb-2">
+                                                "${evidence.content}"
+                                            </blockquote>
+                                            <p class="text-xs text-blue-600">${evidence.relevance}</p>
+                                        </div>
+                                    `).join('') : `
+                                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                            <p class="text-sm text-gray-600 italic">暂无有效证据</p>
+                                        </div>
+                                    `}
+                                </div>
+                            </div>
+                            
+                            <!-- 深度行为解码分析 -->
+                            <div class="analysis-section">
+                                <h5 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-1 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    AI行为解码分析
+                                </h5>
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-3">
+                                    ${evaluation.behavioral_analysis && evaluation.behavioral_analysis.identified_behaviors && evaluation.behavioral_analysis.identified_behaviors.length > 0 ? `
+                                    <div>
+                                        <h6 class="text-xs font-semibold text-purple-800 mb-1">识别到的关键行为：</h6>
+                                        <div class="flex flex-wrap gap-1">
+                                            ${evaluation.behavioral_analysis.identified_behaviors.map(behavior => `
+                                                <span class="inline-block px-2 py-1 text-xs bg-purple-200 text-purple-800 rounded">${behavior}</span>
+                        `).join('')}
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    <div>
+                                        <h6 class="text-xs font-semibold text-purple-800 mb-2">等级匹配分析：</h6>
+                                        <p class="text-sm text-gray-700 leading-relaxed">${evaluation.behavioral_analysis ? evaluation.behavioral_analysis.level_matching : '分析信息缺失'}</p>
+                                    </div>
+                                    
+                                    ${evaluation.behavioral_analysis && evaluation.behavioral_analysis.gap_analysis ? `
+                                    <div>
+                                        <h6 class="text-xs font-semibold text-purple-800 mb-2">差距分析：</h6>
+                                        <p class="text-sm text-gray-700 leading-relaxed">${evaluation.behavioral_analysis.gap_analysis}</p>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    ${evaluation.behavioral_analysis && evaluation.behavioral_analysis.conclusion_reasoning ? `
+                                    <div>
+                                        <h6 class="text-xs font-semibold text-purple-800 mb-2">结论推理：</h6>
+                                        <p class="text-sm text-gray-700 leading-relaxed">${evaluation.behavioral_analysis.conclusion_reasoning}</p>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            
+                            ${evaluation.strengths && evaluation.strengths.length > 0 || evaluation.improvements && evaluation.improvements.length > 0 ? `
+                            <div class="strengths-weaknesses grid grid-cols-1 md:grid-cols-2 gap-4">
+                                ${evaluation.strengths && evaluation.strengths.length > 0 ? `
+                                <div class="strengths bg-green-50 p-3 rounded-lg border border-green-200">
+                                    <h6 class="text-sm font-semibold text-green-800 mb-2 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        优势
+                                    </h6>
+                                    <ul class="text-xs text-green-700 space-y-1">
+                                        ${evaluation.strengths.map(strength => `<li>• ${strength}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                ` : ''}
+                                
+                                ${evaluation.improvements && evaluation.improvements.length > 0 ? `
+                                <div class="improvements bg-orange-50 p-3 rounded-lg border border-orange-200">
+                                    <h6 class="text-sm font-semibold text-orange-800 mb-2 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        改进建议
+                                    </h6>
+                                    <ul class="text-xs text-orange-700 space-y-1">
+                                        ${evaluation.improvements.map(improvement => `<li>• ${improvement}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                ` : ''}
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getScoreClass(score) {
+            const classes = {
+                '超出要求': 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white',
+                '符合要求': 'bg-gradient-to-r from-blue-500 to-blue-600 text-white',
+                '低于要求': 'bg-gradient-to-r from-amber-500 to-amber-600 text-white',
+                '没有展现': 'bg-gradient-to-r from-slate-400 to-slate-500 text-white',
+                '评估失败': 'bg-red-500 text-white'
+            };
+            return classes[score] || 'bg-gray-400 text-white';
+        }
 
         
         async function callQwenAPI(competency, level, resume = '') {
